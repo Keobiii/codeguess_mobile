@@ -108,6 +108,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       final codeAnswer = CodeAnswer(
         questionId: question!.id,
         answer: answer,
+        isCorrect: answer == question.answer ? 1 : 0,
         time: elapseTime.inMilliseconds,
       );
 
@@ -119,7 +120,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       debugPrint('Question ID: ${codeAnswer.questionId}');
       debugPrint('Time: ${codeAnswer.time} ms');
 
-      if (answer == question!.answer) {
+      if (answer == question.answer) {
         _pauseStopwatch();
         return;
       }
@@ -162,15 +163,21 @@ class _HomePageState extends ConsumerState<HomePage> {
                           Text(
                             answer.answer,
                             style: TextStyle(
-                              color: AppTheme.text,
-                              fontSize: 16,
+                              color: answer.isCorrect == 1
+                                  ? Colors.green
+                                  : AppTheme.secondaryText,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                           Text(
                             formatMilliseconds(answer.time),
                             style: TextStyle(
-                              color: AppTheme.secondaryText,
-                              fontSize: 14,
+                              color: answer.isCorrect == 1
+                                  ? Colors.green
+                                  : AppTheme.secondaryText,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
