@@ -1,14 +1,135 @@
+import 'dart:async';
+
+import 'package:codeguess/features/codeguess/domain/entities/code_answer.dart';
+import 'package:codeguess/features/codeguess/widget/code_question_card.dart';
+import 'package:codeguess/features/codeguess/widget/home_header.dart';
+import 'package:codeguess/features/codeguess/widget/outline_textfield.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:iconsax/iconsax.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../providers/code_question_provider.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage> {
+  final TextEditingController _answerController = TextEditingController();
+  final FocusNode _answerFocusNode = FocusNode();
+
+  final Stopwatch _stopwatch = Stopwatch();
+  Timer? _timer;
+
+  final List<CodeAnswer> _answers = [];
+
+  String get formattedTime {
+    final duration = _stopwatch.elapsed;
+
+    final minutes = duration.inMinutes.toString().padLeft(2, '0');
+    final seconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
+    final milliseconds = (duration.inMilliseconds % 1000 ~/ 10)
+        .toString()
+        .padLeft(2, '0');
+
+    return '$minutes:$seconds.$milliseconds';
+  }
+
+  String formatMilliseconds(int milliseconds) {
+    final minutes = (milliseconds ~/ 60000).toString().padLeft(2, '0');
+    final seconds = ((milliseconds ~/ 1000) % 60).toString().padLeft(2, '0');
+    final centiseconds = ((milliseconds % 1000) ~/ 10).toString().padLeft(
+      2,
+      '0',
+    );
+
+    return '$minutes:$seconds.$centiseconds';
+  }
+
+  void _startStopWatch() {
+    if (_stopwatch.isRunning) return;
+
+    _stopwatch.start();
+
+    _timer = Timer.periodic(const Duration(milliseconds: 10), (_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  void _pauseStopwatch() {
+    _stopwatch.stop();
+    _timer?.cancel();
+
+    setState(() {});
+  }
+
+  void _resetStopwatch() {
+    _stopwatch.reset();
+    _timer?.cancel();
+
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _answerFocusNode.addListener(() {
+      if (_answerFocusNode.hasFocus) {
+        _startStopWatch();
+      }
+    });
+
+    // _startStopWatch();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _answerController.dispose();
+    _answerFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final question = ref.watch(randomCodeQuestionProvider);
+
+    final isRunning = _stopwatch.isRunning;
+    final hasElapsed = _stopwatch.elapsedMilliseconds > 0;
+
+    void _submitAnswer(String answer) {
+      final elapseTime = _stopwatch.elapsed;
+      final codeAnswer = CodeAnswer(
+        questionId: question!.id,
+        answer: answer,
+        time: elapseTime.inMilliseconds,
+      );
+
+      setState(() {
+        _answers.add(codeAnswer);
+      });
+
+      debugPrint('Answer: ${codeAnswer.answer}');
+      debugPrint('Question ID: ${codeAnswer.questionId}');
+      debugPrint('Time: ${codeAnswer.time} ms');
+
+      if (answer == question!.answer) {
+        _pauseStopwatch();
+        return;
+      }
+
+      _answerController.clear();
+    }
+
+    final sortedAnswers = [..._answers]
+      ..sort((a, b) => b.time.compareTo(a.time));
+
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: SafeArea(
@@ -17,167 +138,75 @@ class HomePage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Code',
-                          style: TextStyle(
-                            color: AppTheme.text,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        TextSpan(
-                          text: 'Guess',
-                          style: TextStyle(
-                            color: AppTheme.secondaryText,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => context.go('/history'),
-                    child: Icon(
-                      Iconsax.ranking_1,
-                      size: 30,
-                      color: Colors.green,
-                    ),
-                  ),
-                ],
-              ),
+              HomeHeader(),
 
               const SizedBox(height: 32),
 
               // Question
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
+              CodeQuestionCard(question: question!),
+
+              const SizedBox(height: 16),
+
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _answers.length,
+                  reverse: true,
+                  itemBuilder: (context, index) {
+                    final answer = sortedAnswers[index];
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            answer.answer,
+                            style: TextStyle(
+                              color: AppTheme.text,
+                              fontSize: 16,
+                            ),
+                          ),
+                          Text(
+                            formatMilliseconds(answer.time),
+                            style: TextStyle(
+                              color: AppTheme.secondaryText,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Find the missing code',
-                    textAlign: TextAlign.center,
+                  const Text(
+                    'Time',
                     style: TextStyle(
-                      color: AppTheme.secondaryText,
+                      color: AppTheme.text,
                       fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                   Text(
-                    'What method is used to convert a string into uppercase letters?',
+                    formattedTime,
                     style: TextStyle(
                       color: AppTheme.text,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                 ],
               ),
 
-              const SizedBox(height: 30),
-
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.white10, width: 1.5),
-                  color: Colors.grey.withValues(alpha: 0.2),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        top: 16.0,
-                        left: 16.0,
-                        right: 16.0,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                width: 10,
-                                height: 10,
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(50),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Container(
-                                width: 10,
-                                height: 10,
-                                decoration: BoxDecoration(
-                                  color: Colors.yellow,
-                                  borderRadius: BorderRadius.circular(50),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Container(
-                                width: 10,
-                                height: 10,
-                                decoration: BoxDecoration(
-                                  color: Colors.green,
-                                  borderRadius: BorderRadius.circular(50),
-                                ),
-                              ),
-                            ],
-                          ),
-                          Text(
-                            'Javascript',
-                            style: TextStyle(
-                              color: AppTheme.secondaryText,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Divider(
-                      color: AppTheme.border.withValues(alpha: 0.2),
-                      thickness: 1.5,
-                      height: 24,
-                    ),
-                    Container(
-                      width: double.infinity,
-                      height: 200,
-                      child: Center(
-                        child: Text(
-                          'let name = "john";\nname._____();',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              Spacer(),
-              TextField(
-                decoration: InputDecoration(
-                  hintText: 'Enter your answer',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(color: Colors.white),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(color: Colors.white),
-                  ),
-                ),
+              const SizedBox(height: 10),
+              OutlineTextfield(
+                controller: _answerController,
+                focusNode: _answerFocusNode,
+                onSubmitted: _submitAnswer,
               ),
             ],
           ),

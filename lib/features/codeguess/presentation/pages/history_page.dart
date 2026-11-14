@@ -1,3 +1,4 @@
+import 'package:codeguess/features/codeguess/widget/history_header.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
@@ -11,20 +12,12 @@ class HistoryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.background,
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
           child: Column(
-            children: [
-              Text(
-                'Welcome to the History Page!',
-                style: TextStyle(color: AppTheme.text, fontSize: 22),
-              ),
-              GestureDetector(
-                onTap: () => context.go('/home'),
-                child: Icon(Iconsax.home, size: 30, color: Colors.white),
-              ),
-            ],
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [HistoryHeader()],
           ),
         ),
       ),
