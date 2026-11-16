@@ -1,16 +1,16 @@
-import '../../domain/entities/code_answer.dart';
-import '../../domain/repositories/code_answer_repository.dart';
-import '../datasources/code_answer_local_data_source.dart';
-import '../models/code_answer_model.dart';
+import '../../domain/entities/record_answer.dart';
+import '../../domain/repositories/record_answer_repository.dart';
+import '../datasources/record_answer_local_data_source.dart';
+import '../models/record_answer_model.dart';
 
-class CodeAnswerRepositoryImpl implements CodeAnswerRepository {
-  final CodeAnswerLocalDataSource localDataSource;
+class RecordAnswerRepositoryImpl implements RecordAnswerRepository {
+  final RecordAnswerLocalDataSource localDataSource;
 
-  CodeAnswerRepositoryImpl(this.localDataSource);
+  RecordAnswerRepositoryImpl(this.localDataSource);
 
   @override
-  Future<void> addRecord(CodeAnswer answer) {
-    final model = CodeAnswerModel(
+  Future<void> addRecord(RecordAnswer answer) {
+    final model = RecordAnswerModel(
       questionId: answer.questionId,
       answer: answer.answer,
       isCorrect: answer.isCorrect,
@@ -21,13 +21,13 @@ class CodeAnswerRepositoryImpl implements CodeAnswerRepository {
   }
 
   @override
-  Future<List<CodeAnswer>> getAnswers() {
+  Future<List<RecordAnswer>> getRecords() {
     return localDataSource.getAnswers();
   }
 
   @override
-  Future<void> updateRecord(int id, CodeAnswer answer) {
-    final model = CodeAnswerModel(
+  Future<void> updateRecord(int id, RecordAnswer answer) {
+    final model = RecordAnswerModel(
       questionId: answer.questionId,
       answer: answer.answer,
       isCorrect: answer.isCorrect,

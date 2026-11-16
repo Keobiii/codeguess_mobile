@@ -1,219 +1,84 @@
-import 'dart:async';
-
-import 'package:codeguess/features/codeguess/domain/entities/code_answer.dart';
-import 'package:codeguess/features/codeguess/widget/code_question_card.dart';
+import 'package:codeguess/features/codeguess/presentation/widget/language_card.dart';
 import 'package:codeguess/features/codeguess/widget/home_header.dart';
-import 'package:codeguess/features/codeguess/widget/outline_textfield.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_theme.dart';
-import '../providers/code_question_provider.dart';
 
-class HomePage extends ConsumerStatefulWidget {
+class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
-  ConsumerState<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends ConsumerState<HomePage> {
-  final TextEditingController _answerController = TextEditingController();
-  final FocusNode _answerFocusNode = FocusNode();
-
-  final Stopwatch _stopwatch = Stopwatch();
-  Timer? _timer;
-
-  final List<CodeAnswer> _answers = [];
-
-  String get formattedTime {
-    final duration = _stopwatch.elapsed;
-
-    final minutes = duration.inMinutes.toString().padLeft(2, '0');
-    final seconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
-    final milliseconds = (duration.inMilliseconds % 1000 ~/ 10)
-        .toString()
-        .padLeft(2, '0');
-
-    return '$minutes:$seconds.$milliseconds';
-  }
-
-  String formatMilliseconds(int milliseconds) {
-    final minutes = (milliseconds ~/ 60000).toString().padLeft(2, '0');
-    final seconds = ((milliseconds ~/ 1000) % 60).toString().padLeft(2, '0');
-    final centiseconds = ((milliseconds % 1000) ~/ 10).toString().padLeft(
-      2,
-      '0',
-    );
-
-    return '$minutes:$seconds.$centiseconds';
-  }
-
-  void _startStopWatch() {
-    if (_stopwatch.isRunning) return;
-
-    _stopwatch.start();
-
-    _timer = Timer.periodic(const Duration(milliseconds: 10), (_) {
-      if (mounted) {
-        setState(() {});
-      }
-    });
-  }
-
-  void _pauseStopwatch() {
-    _stopwatch.stop();
-    _timer?.cancel();
-
-    setState(() {});
-  }
-
-  void _resetStopwatch() {
-    _stopwatch.reset();
-    _timer?.cancel();
-
-    setState(() {});
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    _answerFocusNode.addListener(() {
-      if (_answerFocusNode.hasFocus) {
-        _startStopWatch();
-      }
-    });
-
-    // _startStopWatch();
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    _answerController.dispose();
-    _answerFocusNode.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final question = ref.watch(randomCodeQuestionProvider);
-
-    final isRunning = _stopwatch.isRunning;
-    final hasElapsed = _stopwatch.elapsedMilliseconds > 0;
-
-    void _submitAnswer(String answer) {
-      final elapseTime = _stopwatch.elapsed;
-      final codeAnswer = CodeAnswer(
-        questionId: question!.id,
-        answer: answer,
-        isCorrect: answer == question.answer ? 1 : 0,
-        time: elapseTime.inMilliseconds,
-      );
-
-      setState(() {
-        _answers.add(codeAnswer);
-      });
-
-      debugPrint('Answer: ${codeAnswer.answer}');
-      debugPrint('Question ID: ${codeAnswer.questionId}');
-      debugPrint('Time: ${codeAnswer.time} ms');
-
-      if (answer == question.answer) {
-        _pauseStopwatch();
-        return;
-      }
-
-      _answerController.clear();
-    }
-
-    final sortedAnswers = [..._answers]
-      ..sort((a, b) => b.time.compareTo(a.time));
-
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(20),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              HomeHeader(),
-
-              const SizedBox(height: 32),
-
-              // Question
-              CodeQuestionCard(question: question!),
-
-              const SizedBox(height: 16),
-
-              Expanded(
-                child: ListView.builder(
-                  itemCount: _answers.length,
-                  reverse: true,
-                  itemBuilder: (context, index) {
-                    final answer = sortedAnswers[index];
-
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            answer.answer,
-                            style: TextStyle(
-                              color: answer.isCorrect == 1
-                                  ? Colors.green
-                                  : AppTheme.secondaryText,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            formatMilliseconds(answer.time),
-                            style: TextStyle(
-                              color: answer.isCorrect == 1
-                                  ? Colors.green
-                                  : AppTheme.secondaryText,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+              const HomeHeader(),
+              const SizedBox(height: 24),
+              Center(
+                child: Text(
+                  'What language do you know well?',
+                  style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.text,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
               ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Time',
-                    style: TextStyle(
-                      color: AppTheme.text,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                  Text(
-                    formattedTime,
-                    style: TextStyle(
-                      color: AppTheme.text,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ],
+              const SizedBox(height: 50),
+              const Text(
+                'List of language',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.text,
+                ),
+                textAlign: TextAlign.center,
               ),
-
-              const SizedBox(height: 10),
-              OutlineTextfield(
-                controller: _answerController,
-                focusNode: _answerFocusNode,
-                onSubmitted: _submitAnswer,
+              const SizedBox(height: 20),
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: Column(
+                    children: [
+                      LanguageCard(
+                        title: 'Java',
+                        icon: FontAwesomeIcons.java,
+                        onTap: () => context.go('/game'),
+                      ),
+                      const SizedBox(height: 16),
+                      LanguageCard(
+                        title: 'C',
+                        icon: FontAwesomeIcons.c,
+                        onTap: () => context.go('/game'),
+                      ),
+                      const SizedBox(height: 16),
+                      LanguageCard(
+                        title: 'PHP',
+                        icon: FontAwesomeIcons.php,
+                        onTap: () => context.go('/game'),
+                      ),
+                      const SizedBox(height: 16),
+                      LanguageCard(
+                        title: 'Javascript',
+                        icon: FontAwesomeIcons.squareJs,
+                        onTap: () => context.go('/game'),
+                      ),
+                      const SizedBox(height: 16),
+                      LanguageCard(
+                        title: 'C#',
+                        onTap: () => context.go('/game'),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),

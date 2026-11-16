@@ -1,26 +1,26 @@
 import 'package:codeguess/core/database/database_helper.dart';
-import 'package:codeguess/features/codeguess/data/models/code_answer_model.dart';
+import 'package:codeguess/features/codeguess/data/models/record_answer_model.dart';
 
-class CodeAnswerLocalDataSource {
+class RecordAnswerLocalDataSource {
   final DatabaseHelper databaseHelper;
 
-  CodeAnswerLocalDataSource(this.databaseHelper);
+  RecordAnswerLocalDataSource(this.databaseHelper);
 
-  Future<void> recordAnswer(CodeAnswerModel answer) async {
+  Future<void> recordAnswer(RecordAnswerModel answer) async {
     final db = await databaseHelper.database;
 
     await db.insert('codeguess_history', answer.toMap());
   }
 
-  Future<List<CodeAnswerModel>> getAnswers() async {
+  Future<List<RecordAnswerModel>> getAnswers() async {
     final db = await databaseHelper.database;
 
-    final result = await db.query('codeguess_history');
+    final result = await db.query('codeguess_history', orderBy: 'time ASC');
 
-    return result.map((map) => CodeAnswerModel.fromMap(map)).toList();
+    return result.map((map) => RecordAnswerModel.fromMap(map)).toList();
   }
 
-  Future<void> updateAnswer(int id, CodeAnswerModel answer) async {
+  Future<void> updateAnswer(int id, RecordAnswerModel answer) async {
     final db = await databaseHelper.database;
 
     await db.update(

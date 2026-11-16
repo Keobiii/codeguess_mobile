@@ -1,10 +1,10 @@
-class CodeAnswer {
+class RecordAnswer {
   final int questionId;
   final String answer;
   final int isCorrect;
   final int time;
 
-  const CodeAnswer({
+  const RecordAnswer({
     required this.questionId,
     required this.answer,
     required this.isCorrect,

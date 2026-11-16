@@ -12,11 +12,15 @@ class HistoryHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
+        GestureDetector(
+          onTap: () => context.go('/game'),
+          child: Icon(Icons.arrow_back_ios, size: 24, color: Colors.white),
+        ),
         Text.rich(
           TextSpan(
             children: [
               TextSpan(
-                text: 'Code',
+                text: 'History',
                 style: TextStyle(
                   color: AppTheme.text,
                   fontSize: 24,
@@ -35,7 +39,7 @@ class HistoryHeader extends StatelessWidget {
           ),
         ),
         GestureDetector(
-          onTap: () => context.go('/home'),
+          onTap: () => context.pop(),
           child: Icon(Iconsax.game, size: 30, color: Colors.white),
         ),
       ],
