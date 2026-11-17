@@ -3,6 +3,7 @@ import 'package:codeguess/features/codeguess/domain/entities/code_question.dart'
 import 'package:codeguess/features/codeguess/domain/repositories/code_question_repository.dart';
 import 'package:codeguess/features/codeguess/domain/usecases/get_code_questions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 import '../../data/datasources/code_question_local_data_source.dart';
 import '../../domain/usecases/get_random_code_question.dart';
@@ -34,6 +35,10 @@ final codeQuestionsProvider = Provider<List<CodeQuestion>>((ref) {
   return ref.watch(getCodeQuestionsProvider).call();
 });
 
-final randomCodeQuestionProvider = Provider<CodeQuestion?>((ref) {
+// final randomCodeQuestionProvider = Provider<CodeQuestion?>((ref) {
+//   return ref.watch(getRandomCodeQuestionProvider).call();
+// });
+
+final randomCodeQuestionProvider = StateProvider<CodeQuestion?>((ref) {
   return ref.watch(getRandomCodeQuestionProvider).call();
 });

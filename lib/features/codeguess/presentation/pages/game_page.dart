@@ -4,6 +4,7 @@ import 'package:codeguess/features/codeguess/domain/entities/record_answer.dart'
 import 'package:codeguess/features/codeguess/presentation/notfiers/record_answer_notifier.dart';
 import 'package:codeguess/features/codeguess/widget/code_question_card.dart';
 import 'package:codeguess/features/codeguess/widget/game_header.dart';
+import 'package:codeguess/features/codeguess/widget/outline_button.dart';
 import 'package:codeguess/features/codeguess/widget/outline_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -71,11 +72,20 @@ class _GamePageState extends ConsumerState<GamePage> {
     setState(() {});
   }
 
-  void _resetStopwatch() {
-    _stopwatch.reset();
-    _timer?.cancel();
+  void _resetGame() {
+    setState(() {
+      _isAnswered = false;
+      _answers.clear();
+    });
 
-    setState(() {});
+    _stopwatch.reset();
+    // _stopwatch.start();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _answerFocusNode.requestFocus();
+      }
+    });
   }
 
   @override
@@ -103,9 +113,6 @@ class _GamePageState extends ConsumerState<GamePage> {
   Widget build(BuildContext context) {
     final question = ref.watch(randomCodeQuestionProvider);
 
-    final isRunning = _stopwatch.isRunning;
-    final hasElapsed = _stopwatch.elapsedMilliseconds > 0;
-
     void _submitAnswer(String answer) async {
       final elapseTime = _stopwatch.elapsed;
       final codeAnswer = RecordAnswer(
@@ -119,9 +126,9 @@ class _GamePageState extends ConsumerState<GamePage> {
         _answers.add(codeAnswer);
       });
 
-      debugPrint('Answer: ${codeAnswer.answer}');
-      debugPrint('Question ID: ${codeAnswer.questionId}');
-      debugPrint('Time: ${codeAnswer.time} ms');
+      // debugPrint('Answer: ${codeAnswer.answer}');
+      // debugPrint('Question ID: ${codeAnswer.questionId}');
+      // debugPrint('Time: ${codeAnswer.time} ms');
 
       if (answer == question.answer) {
         setState(() {
@@ -217,12 +224,22 @@ class _GamePageState extends ConsumerState<GamePage> {
               ),
 
               const SizedBox(height: 10),
-              OutlineTextfield(
-                controller: _answerController,
-                focusNode: _answerFocusNode,
-                onSubmitted: _submitAnswer,
-                enabled: !_isAnswered,
-              ),
+              _isAnswered
+                  ? OutlineButton(
+                      text: 'One More',
+                      onPressed: () {
+                        ref.read(randomCodeQuestionProvider.notifier).state =
+                            ref.read(getRandomCodeQuestionProvider).call();
+
+                        _resetGame();
+                      },
+                    )
+                  : OutlineTextfield(
+                      controller: _answerController,
+                      focusNode: _answerFocusNode,
+                      onSubmitted: _submitAnswer,
+                      enabled: !_isAnswered,
+                    ),
             ],
           ),
         ),
