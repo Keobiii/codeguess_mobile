@@ -12,6 +12,7 @@ class RecordAnswerRepositoryImpl implements RecordAnswerRepository {
   Future<void> addRecord(RecordAnswer answer) {
     final model = RecordAnswerModel(
       questionId: answer.questionId,
+      language: answer.language,
       answer: answer.answer,
       isCorrect: answer.isCorrect,
       time: answer.time,
@@ -29,6 +30,7 @@ class RecordAnswerRepositoryImpl implements RecordAnswerRepository {
   Future<void> updateRecord(int id, RecordAnswer answer) {
     final model = RecordAnswerModel(
       questionId: answer.questionId,
+      language: answer.language,
       answer: answer.answer,
       isCorrect: answer.isCorrect,
       time: answer.time,

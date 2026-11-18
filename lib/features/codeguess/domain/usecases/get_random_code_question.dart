@@ -8,8 +8,8 @@ class GetRandomCodeQuestion {
 
   GetRandomCodeQuestion(this.repository);
 
-  CodeQuestion? call() {
-    final questions = repository.getQuestions();
+  CodeQuestion? call(String language) {
+    final questions = repository.getQuestions(language);
 
     if (questions.isEmpty) return null;
 

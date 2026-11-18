@@ -13,7 +13,8 @@ import '../../../../core/theme/app_theme.dart';
 import '../providers/code_question_provider.dart';
 
 class GamePage extends ConsumerStatefulWidget {
-  const GamePage({super.key});
+  final String langauge;
+  const GamePage({super.key, required this.langauge});
 
   @override
   ConsumerState<GamePage> createState() => _GamePageState();
@@ -98,6 +99,14 @@ class _GamePageState extends ConsumerState<GamePage> {
       }
     });
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      ref.read(randomCodeQuestionProvider.notifier).state = ref
+          .read(getRandomCodeQuestionProvider)
+          .call(widget.langauge);
+    });
+
     // _startStopWatch();
   }
 
@@ -113,10 +122,15 @@ class _GamePageState extends ConsumerState<GamePage> {
   Widget build(BuildContext context) {
     final question = ref.watch(randomCodeQuestionProvider);
 
-    void _submitAnswer(String answer) async {
+    if (question == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    void submitAnswer(String answer) async {
       final elapseTime = _stopwatch.elapsed;
       final codeAnswer = RecordAnswer(
-        questionId: question!.id,
+        questionId: question.id,
+        language: question.language,
         answer: answer,
         isCorrect: answer == question.answer ? 1 : 0,
         time: elapseTime.inMilliseconds,
@@ -168,7 +182,7 @@ class _GamePageState extends ConsumerState<GamePage> {
               const SizedBox(height: 32),
 
               // Question
-              CodeQuestionCard(question: question!),
+              CodeQuestionCard(question: question),
 
               const SizedBox(height: 16),
 
@@ -228,8 +242,11 @@ class _GamePageState extends ConsumerState<GamePage> {
                   ? OutlineButton(
                       text: 'One More',
                       onPressed: () {
-                        ref.read(randomCodeQuestionProvider.notifier).state =
-                            ref.read(getRandomCodeQuestionProvider).call();
+                        ref
+                            .read(randomCodeQuestionProvider.notifier)
+                            .state = ref
+                            .read(getRandomCodeQuestionProvider)
+                            .call(widget.langauge);
 
                         _resetGame();
                       },
@@ -237,7 +254,7 @@ class _GamePageState extends ConsumerState<GamePage> {
                   : OutlineTextfield(
                       controller: _answerController,
                       focusNode: _answerFocusNode,
-                      onSubmitted: _submitAnswer,
+                      onSubmitted: submitAnswer,
                       enabled: !_isAnswered,
                     ),
             ],

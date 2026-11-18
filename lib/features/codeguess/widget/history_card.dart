@@ -30,15 +30,31 @@ class HistoryCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
-              child: Text(
-                recordAnswer.answer,
-                style: const TextStyle(
-                  color: AppTheme.text,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    recordAnswer.language,
+                    style: const TextStyle(
+                      color: AppTheme.secondaryText,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    recordAnswer.answer,
+                    style: const TextStyle(
+                      color: AppTheme.text,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
             ),
             Text(

@@ -13,7 +13,7 @@ class HistoryHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         GestureDetector(
-          onTap: () => context.go('/game'),
+          onTap: () => context.go('/'),
           child: Icon(Icons.arrow_back_ios, size: 24, color: Colors.white),
         ),
         Text.rich(

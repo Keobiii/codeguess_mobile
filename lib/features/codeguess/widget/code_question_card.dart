@@ -16,7 +16,7 @@ class CodeQuestionCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Find the missing code',
+              'Type the missing code',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppTheme.secondaryText,

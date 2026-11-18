@@ -23,7 +23,7 @@ class HomePage extends StatelessWidget {
               const SizedBox(height: 24),
               Center(
                 child: Text(
-                  'What language do you know well?',
+                  'Can you solve it quickly?',
                   style: const TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.bold,
@@ -51,30 +51,34 @@ class HomePage extends StatelessWidget {
                       LanguageCard(
                         title: 'Java',
                         icon: FontAwesomeIcons.java,
-                        onTap: () => context.go('/game'),
+                        onTap: () => context.go('/game/Java'),
                       ),
                       const SizedBox(height: 16),
+
                       LanguageCard(
                         title: 'C',
                         icon: FontAwesomeIcons.c,
-                        onTap: () => context.go('/game'),
+                        onTap: () => context.go('/game/C'),
                       ),
                       const SizedBox(height: 16),
+
                       LanguageCard(
                         title: 'PHP',
                         icon: FontAwesomeIcons.php,
-                        onTap: () => context.go('/game'),
+                        onTap: () => context.go('/game/PHP'),
                       ),
                       const SizedBox(height: 16),
+
                       LanguageCard(
                         title: 'Javascript',
                         icon: FontAwesomeIcons.squareJs,
-                        onTap: () => context.go('/game'),
+                        onTap: () => context.go('/game/JavaScript'),
                       ),
                       const SizedBox(height: 16),
+
                       LanguageCard(
                         title: 'C#',
-                        onTap: () => context.go('/game'),
+                        onTap: () => context.go('/game/C#'),
                       ),
                     ],
                   ),

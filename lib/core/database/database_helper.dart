@@ -28,6 +28,7 @@ class DatabaseHelper {
       CREATE TABLE codeguess_history (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         question_id INTEGER NOT NULL,
+        language TEXT NOT NULL,
         isCorrect INTEGER NOT NULL,
         answer TEXT NOT NULL,
         time INTEGER NOT NULL

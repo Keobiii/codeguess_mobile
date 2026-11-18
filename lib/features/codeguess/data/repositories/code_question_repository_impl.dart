@@ -8,7 +8,7 @@ class CodeQuestionRepositoryImpl implements CodeQuestionRepository {
   CodeQuestionRepositoryImpl(this.localDataSource);
 
   @override
-  List<CodeQuestion> getQuestions() {
-    return localDataSource.getQuestions();
+  List<CodeQuestion> getQuestions(String language) {
+    return localDataSource.getQuestions(language);
   }
 }
